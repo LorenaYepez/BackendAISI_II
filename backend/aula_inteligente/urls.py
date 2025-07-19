@@ -16,8 +16,11 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path, include
+def home(request):
+    return JsonResponse({"status": "ok", "message": "Django está vivo 🚀"})
 
 urlpatterns = [
+    path('', home),  # <- ESTA es la clave para mostrar algo en "/"
     path('admin/', admin.site.urls),
     path('api/usuarios/', include('apps.usuarios.urls')),
     path('api/materias/', include('apps.materias.urls')),
