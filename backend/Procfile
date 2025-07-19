@@ -1,2 +1,4 @@
-web: gunicorn aula_inteligente.wsgi --log-file - --timeout 120 --workers 2 --threads 2
+web: python manage.py migrate && gunicorn aula_inteligente.wsgi --log-file - --timeout 120 --workers 2 --threads 2
+
+
 
