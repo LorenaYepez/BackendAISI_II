@@ -3,7 +3,7 @@ builder = "nixpacks"
 
 [deploy]
 startCommand = "cd backend && gunicorn aula_inteligente.wsgi --log-file -"
-healthcheckPath = "/"
+healthcheckPath = "/api/usuarios/"
 restartPolicyType = "on_failure"
 
 [nixpacks]
