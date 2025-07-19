@@ -1,5 +1,4 @@
- web: python manage.py migrate && python manage.py shell < backend/create_superuser_script.py && gunicorn aula_inteligente.wsgi --log-file -
-
+web: python manage.py migrate && gunicorn aula_inteligente.wsgi --log-file - --timeout 120 --workers 2 --threads 2
 
 
 
