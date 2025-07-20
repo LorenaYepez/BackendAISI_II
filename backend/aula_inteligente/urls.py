@@ -17,12 +17,25 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path, include
 from django.http import JsonResponse
+from django.contrib.auth import get_user_model
+
+def check_superuser(request):
+    User = get_user_model()
+    user = User.objects.filter(is_superuser=True).first()
+    if user:
+        return JsonResponse({
+            "username": user.username,
+            "email": user.email
+        })
+    return JsonResponse({"error": "No superuser found"}, status=404)
+
 def home(request):
     return JsonResponse({"status": "ok", "message": "Django está vivo 🚀"})
 
 urlpatterns = [
     path('', home),  # <- ESTA es la clave para mostrar algo en "/"
     path('admin/', admin.site.urls),
+    path('check-superuser/', check_superuser),  # ⬅️ TEMPORAL
     path('api/usuarios/', include('apps.usuarios.urls')),
     path('api/materias/', include('apps.materias.urls')),
     path('api/notas/', include('apps.notas.urls')),
