@@ -238,17 +238,22 @@ class GenerarQRPagoView(APIView):
                 method="POST"
             )
 
-            print("✅ QR response recibido:", qr_response)
-
-
             with urllib.request.urlopen(qr_request) as response:
                 qr_response = json.loads(response.read().decode())
+                print("✅ QR response recibido:", json.dumps(qr_response, indent=2))  # ← esto se imprimirá
                 return JsonResponse(qr_response, status=200)
+
 
         except Exception as e:
             print("❌ ERROR al generar el QR:")
+            print(f"Tipo de excepción: {exc_type.__name__}")
+            print(f"Archivo: {filename}")
+            print(f"Línea: {lineno}")
+            print(f"Mensaje: {e}")
+            print("🔍 Traceback completo:")
             print(traceback.format_exc())
             return JsonResponse({"error": str(e)}, status=500)
 
 
 #Preparar datos estáticos para el QR, con NroPago dinámico
+
