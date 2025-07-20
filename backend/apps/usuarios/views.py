@@ -7,12 +7,14 @@ from .models import User
 from rest_framework_simplejwt.views import TokenObtainPairView
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 # generar pago de matricula
+from django.http import HttpRequest, JsonResponse
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
 import random
 import urllib.request
 import json
+
 
 
 class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
