@@ -12,6 +12,8 @@ from rest_framework.response import Response
 from rest_framework import status
 import random
 import urllib.request
+import json
+
 
 class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
     def validate(self, attrs):
