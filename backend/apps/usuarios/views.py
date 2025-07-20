@@ -170,36 +170,40 @@ class EstudiantesListView(APIView):
         serializer = UserProfileSerializer(queryset, many=True)
         return Response(serializer.data)
 
-# metodo generar pago
-class GenerarQRPagoView(APIView):
-    def post(self, request):
+
+
+class GenerarQRPagoView(View):
+    def post(self, request: HttpRequest):
         try:
-            # Paso 1: Autenticarse para obtener AccessToken
-            auth_response = requests.post(
-                "https://serviciostigomoney.pagofacil.com.bo/api/servicio/login",
-                json={
-                    "TokenService": "51247fae280c20410824977b0781453df59fad5b23bf2a0d14e884482f91e09078dbe5966e0b970ba696ec4caf9aa5661802935f86717c481f1670e63f35d5041c31d7cc6124be82afedc4fe926b806755efe678917468e31593a5f427c79cdf016b686fca0cb58eb145cf524f62088b57c6987b3bb3f30c2082b640d7c52907",
+            # Paso 1: Autenticación
+            auth_data = json.dumps({
+                "TokenService": "51247fae280c20410824977b0781453df59fad5b23bf2a0d14e884482f91e09078dbe5966e0b970ba696ec4caf9aa5661802935f86717c481f1670e63f35d5041c31d7cc6124be82afedc4fe926b806755efe678917468e31593a5f427c79cdf016b686fca0cb58eb145cf524f62088b57c6987b3bb3f30c2082b640d7c52907",
                     "TokenSecret": "9E7BC239DDC04F83B49FFDA5"
-                },
-                headers={"Content-Type": "application/json"}
+            }).encode("utf-8")
+
+            auth_request = urllib.request.Request(
+                url="https://serviciostigomoney.pagofacil.com.bo/api/servicio/login",
+                data=auth_data,
+                headers={"Content-Type": "application/json"},
+                method="POST"
             )
 
-            if auth_response.status_code != 200:
-                return Response({"error": "Fallo en autenticación"}, status=auth_response.status_code)
+            with urllib.request.urlopen(auth_request) as response:
+                auth_response = json.loads(response.read().decode())
+                access_token = auth_response.get("values")
 
-            access_token = auth_response.json().get("values")
-
-            # Paso 2: Preparar datos estáticos para el QR
+            # Paso 2: Preparar datos para generar QR
+            nro_pago = f"mat-{random.randint(100000, 999999)}"
             payload = {
                 "tcCommerceID": "d029fa3a95e1744b70ad704bc6c8d1c",
-                "tcNroPago": tc_nro_pago, #"20001",
+                "tcNroPago": nro_pago,
                 "tcNombreUsuario": "Juan Pérez",
                 "tnCiNit": 12345678,
                 "tnTelefono": 71234567,
                 "tcCorreo": "juan.perez@example.com",
                 "tcCodigoClienteEmpresa": "C001",
                 "tnMontoClienteEmpresa": "0.01",
-                "tnMoneda": 2,  # 2 = Bolivianos
+                "tnMoneda": 2,
                 "tcUrlCallBack": "https://tuservidor.com/callback",
                 "tcUrlReturn": "https://tuservidor.com/retorno",
                 "taPedidoDetalle": [
@@ -214,20 +218,22 @@ class GenerarQRPagoView(APIView):
                 ]
             }
 
-            # Paso 3: Generar QR
-            qr_response = requests.post(
-                "https://serviciostigomoney.pagofacil.com.bo/api/servicio/pagoqr",
-                json=payload,
+            qr_request = urllib.request.Request(
+                url="https://serviciostigomoney.pagofacil.com.bo/api/servicio/pagoqr",
+                data=json.dumps(payload).encode("utf-8"),
                 headers={
-                    "Authorization": f"Bearer {access_token}",
-                    "Content-Type": "application/json"
-                }
+                    "Content-Type": "application/json",
+                    "Authorization": f"Bearer {access_token}"
+                },
+                method="POST"
             )
 
-            return Response(qr_response.json(), status=qr_response.status_code)
+            with urllib.request.urlopen(qr_request) as response:
+                qr_response = json.loads(response.read().decode())
+                return JsonResponse(qr_response, status=200)
 
         except Exception as e:
-            return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+            return JsonResponse({"error": str(e)}, status=500)
 
 
 #Preparar datos estáticos para el QR, con NroPago dinámico
