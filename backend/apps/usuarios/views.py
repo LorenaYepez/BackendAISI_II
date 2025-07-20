@@ -172,7 +172,7 @@ class EstudiantesListView(APIView):
 
 
 
-class GenerarQRPagoView(View):
+class GenerarQRPagoView(APIView):
     def post(self, request: HttpRequest):
         try:
             # Paso 1: Autenticación
