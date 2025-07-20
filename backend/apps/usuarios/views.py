@@ -194,6 +194,7 @@ class GenerarQRPagoView(APIView):
 
             # Paso 2: Preparar datos para generar QR
             nro_pago = f"mat-{random.randint(100000, 999999)}"
+
             payload = {
                 "tcCommerceID": "d029fa3a95e1744b70ad704bc6c8d1c",
                 "tcNroPago": nro_pago,
@@ -237,4 +238,3 @@ class GenerarQRPagoView(APIView):
 
 
 #Preparar datos estáticos para el QR, con NroPago dinámico
-tc_nro_pago = f"mat-{random.randint(100000, 999999)}"
