@@ -6,7 +6,12 @@ from .serializers import UserRegisterSerializer, UserProfileSerializer, AdminUse
 from .models import User
 from rest_framework_simplejwt.views import TokenObtainPairView
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
-
+# generar pago de matricula
+import requests
+from rest_framework.views import APIView
+from rest_framework.response import Response
+from rest_framework import status
+import random
 
 class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
     def validate(self, attrs):
@@ -164,3 +169,66 @@ class EstudiantesListView(APIView):
 
         serializer = UserProfileSerializer(queryset, many=True)
         return Response(serializer.data)
+
+# metodo generar pago
+class GenerarQRPagoView(APIView):
+    def post(self, request):
+        try:
+            # Paso 1: Autenticarse para obtener AccessToken
+            auth_response = requests.post(
+                "https://serviciostigomoney.pagofacil.com.bo/api/servicio/login",
+                json={
+                    "TokenService": "51247fae280c20410824977b0781453df59fad5b23bf2a0d14e884482f91e09078dbe5966e0b970ba696ec4caf9aa5661802935f86717c481f1670e63f35d5041c31d7cc6124be82afedc4fe926b806755efe678917468e31593a5f427c79cdf016b686fca0cb58eb145cf524f62088b57c6987b3bb3f30c2082b640d7c52907",
+                    "TokenSecret": "9E7BC239DDC04F83B49FFDA5"
+                },
+                headers={"Content-Type": "application/json"}
+            )
+
+            if auth_response.status_code != 200:
+                return Response({"error": "Fallo en autenticación"}, status=auth_response.status_code)
+
+            access_token = auth_response.json().get("values")
+
+            # Paso 2: Preparar datos estáticos para el QR
+            payload = {
+                "tcCommerceID": "d029fa3a95e1744b70ad704bc6c8d1c",
+                "tcNroPago": tc_nro_pago, #"20001",
+                "tcNombreUsuario": "Juan Pérez",
+                "tnCiNit": 12345678,
+                "tnTelefono": 71234567,
+                "tcCorreo": "juan.perez@example.com",
+                "tcCodigoClienteEmpresa": "C001",
+                "tnMontoClienteEmpresa": "0.01",
+                "tnMoneda": 2,  # 2 = Bolivianos
+                "tcUrlCallBack": "https://tuservidor.com/callback",
+                "tcUrlReturn": "https://tuservidor.com/retorno",
+                "taPedidoDetalle": [
+                    {
+                        "Serial": 1,
+                        "Producto": "Curso de Django",
+                        "Cantidad": 1,
+                        "Precio": "0.01",
+                        "Descuento": 0,
+                        "Total": "0.01"
+                    }
+                ]
+            }
+
+            # Paso 3: Generar QR
+            qr_response = requests.post(
+                "https://serviciostigomoney.pagofacil.com.bo/api/servicio/pagoqr",
+                json=payload,
+                headers={
+                    "Authorization": f"Bearer {access_token}",
+                    "Content-Type": "application/json"
+                }
+            )
+
+            return Response(qr_response.json(), status=qr_response.status_code)
+
+        except Exception as e:
+            return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+#Preparar datos estáticos para el QR, con NroPago dinámico
+tc_nro_pago = f"mat-{random.randint(100000, 999999)}"
