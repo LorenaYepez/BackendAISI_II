@@ -211,7 +211,7 @@ class GenerarQRPagoView(APIView):
                 "tcCodigoClienteEmpresa": "C001",
                 "tnMontoClienteEmpresa": "0.01",
                 "tnMoneda": 2,
-                "tcUrlCallBack": "https://tuservidor.com/callback",
+                "tcUrlCallBack": "https://backendaisiii-production.up.railway.app/api/usuarios/pagofacil/callback/",
                 "tcUrlReturn": "https://tuservidor.com/retorno",
                 "taPedidoDetalle": [
                     {
