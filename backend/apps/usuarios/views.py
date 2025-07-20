@@ -199,6 +199,8 @@ class GenerarQRPagoView(APIView):
             # Paso 2: Preparar datos para generar QR
             nro_pago = f"mat-{random.randint(100000, 999999)}"
 
+            print("✅ Auth response:", auth_response)
+
             payload = {
                 "tcCommerceID": "d029fa3a95e174a19934857f535eb9427d967218a36ea014b70ad704bc6c8d1c",
                 "tcNroPago": nro_pago,
@@ -223,6 +225,9 @@ class GenerarQRPagoView(APIView):
                 ]
             }
 
+            print("✅ QR payload enviado:", payload)
+
+
             qr_request = urllib.request.Request(
                 url="https://serviciostigomoney.pagofacil.com.bo/api/servicio/pagoqr",
                 data=json.dumps(payload).encode("utf-8"),
@@ -233,11 +238,16 @@ class GenerarQRPagoView(APIView):
                 method="POST"
             )
 
+            print("✅ QR response recibido:", qr_response)
+
+
             with urllib.request.urlopen(qr_request) as response:
                 qr_response = json.loads(response.read().decode())
                 return JsonResponse(qr_response, status=200)
 
         except Exception as e:
+            print("❌ ERROR al generar el QR:")
+            print(traceback.format_exc())
             return JsonResponse({"error": str(e)}, status=500)
 
 
