@@ -1,6 +1,6 @@
 from django.urls import path
 from rest_framework_simplejwt.views import TokenRefreshView
-from .views import RegisterView, UserProfileView, CustomTokenObtainPairView, AdminUserDeleteView, UserListView, EstudiantesListView, AdminUserUpdateView, GenerarQRPagoView
+from .views import RegisterView, UserProfileView, CustomTokenObtainPairView, AdminUserDeleteView, UserListView, EstudiantesListView, AdminUserUpdateView, GenerarQRPagoView, ConsultarTransaccionPagoFacilView, PagoFacilCallbackView
 # PagoFacilCallbackView
 
 urlpatterns = [
@@ -14,6 +14,8 @@ urlpatterns = [
     path('<int:user_id>/', AdminUserDeleteView.as_view(), name='admin_user_delete'),
     # Nuevas rutas para integración con PagoFácil
     path('pagofacil/generar-qr/', GenerarQRPagoView.as_view(), name='pagofacil_generar_qr'),
+    path('pagofacil/consultar-transaccion/', ConsultarTransaccionPagoFacilView.as_view(), name='pagofacil_consultar_transaccion'),
+    path('pagofacil/callback/', PagoFacilCallbackView.as_view(), name='pagofacil_callback'),
     # path('pagofacil/callback/', PagoFacilCallbackView.as_view(), name='pagofacil_callback'),
 
 ]

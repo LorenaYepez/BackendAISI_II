@@ -256,4 +256,61 @@ class GenerarQRPagoView(APIView):
 
 
 #Preparar datos estáticos para el QR, con NroPago dinámico
+class ConsultarTransaccionPagoFacilView(APIView):
+    def post(self, request):
+        try:
+            transaccion_id = request.data.get("TransaccionDePago")
+            if not transaccion_id:
+                return JsonResponse({"error": "TransaccionDePago es requerido"}, status=400)
 
+            payload = {
+                "TransaccionDePago": transaccion_id
+            }
+
+            print("📨 Consultando transacción:", payload)
+
+            consulta_request = urllib.request.Request(
+                url="https://serviciostigomoney.pagofacil.com.bo/api/servicio/consultartransaccion",
+                data=json.dumps(payload).encode("utf-8"),
+                headers={"Content-Type": "application/json"},
+                method="POST"
+            )
+
+            with urllib.request.urlopen(consulta_request) as response:
+                resultado = json.loads(response.read().decode())
+                print("📬 Respuesta de la consulta:", json.dumps(resultado, indent=2))
+                return JsonResponse(resultado, status=200)
+
+        except Exception as e:
+            import traceback
+            print("❌ ERROR al consultar transacción:")
+            print(traceback.format_exc())
+            return JsonResponse({"error": str(e)}, status=500)
+
+
+
+class PagoFacilCallbackView(APIView):
+    def post(self, request):
+        try:
+            data = request.data
+            print("📥 Callback recibido:", data)
+
+            # Aquí podrías guardar en la base de datos si lo deseas
+
+            return JsonResponse({
+                "error": 0,
+                "estatus": 1,
+                "message": "Callback procesado correctamente",
+                "values": True
+            })
+
+        except Exception as e:
+            import traceback
+            print("❌ ERROR en callback:")
+            print(traceback.format_exc())
+            return JsonResponse({
+                "error": 1,
+                "estatus": 0,
+                "message": str(e),
+                "values": False
+            }, status=500)
