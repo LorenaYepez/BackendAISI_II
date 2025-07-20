@@ -163,3 +163,11 @@ CORS_ALLOW_ALL_ORIGINS = True
 #CORS_ALLOWED_ORIGINS = [
 #   "*"
 #]
+
+
+CSRF_TRUSTED_ORIGINS = [
+    "https://*.railway.app"
+]
+
+
+SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
